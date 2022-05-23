@@ -30,6 +30,11 @@ public class ParserConfigTest extends TestCase {
     	public static class Model {
         	public int value;
     	}
+    	
+    	public void test_0() throws Exception {				????????
+        	ParserConfig config = new ParserConfig();		????????
+        	config.getDeserializers();						????????
+    	}
      *
 	 */
 	

@@ -71,6 +71,9 @@ public class FieldOrderTest extends TestCase {
 	private String schoolName;
 	private String expected;
 	
+	private Person p;
+	private School s;
+	
 	// Constructor
 	public FieldOrderTest(String personName, String schoolName, String expected) {
 		configure(personName, schoolName, expected);
@@ -80,6 +83,12 @@ public class FieldOrderTest extends TestCase {
 		this.personName = personName;
 		this.schoolName = schoolName;
 		this.expected = expected;
+		
+		this.p = new Person();
+		this.p.setName(this.personName);
+		this.s = new School();
+		this.s.setName(this.schoolName);
+		this.p.setSchool(this.s);
 	}
 	
 	@Parameterized.Parameters
@@ -92,12 +101,7 @@ public class FieldOrderTest extends TestCase {
 	
 	@Test
 	public void test_field_order() throws Exception {
-		Person p = new Person();
-		p.setName(this.personName);
-		School s = new School();
-		s.setName(this.schoolName);
-		p.setSchool(s);
-		String json = JSON.toJSONString(p);
+		String json = JSON.toJSONString(this.p);
 		assertEquals(this.expected, json);
 	}
 	

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
+    <wb-module deploy-name="fastjson">
+        <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resources"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/test/java"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/test/resources"/>
+        <dependent-module archiveName="fastjson-1.2.79.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/C:/Users/barba/eclipse-workspace2/fastjson/jar/fastjson-1.2.79.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="jacocoagent.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/C:/Users/barba/eclipse-workspace2/fastjson/jar/jacoco/jacocoagent.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <dependent-module archiveName="jacococli.jar" deploy-path="/WEB-INF/lib" handle="module:/classpath/lib/C:/Users/barba/eclipse-workspace2/fastjson/jar/jacoco/jacococli.jar">
+            <dependency-type>uses</dependency-type>
+        </dependent-module>
+        <property name="context-root" value="fastjson"/>
+        <property name="java-output-path" value="/fastjson/target/classes"/>
+    </wb-module>
+</project-modules>
