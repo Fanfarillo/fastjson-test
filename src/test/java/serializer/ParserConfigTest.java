@@ -3,6 +3,8 @@ package serializer;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.json.JSONObject;
 import org.junit.Assert;
@@ -11,7 +13,10 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.parser.Feature;
 import com.alibaba.fastjson.parser.ParserConfig;
+import com.alibaba.fastjson.parser.deserializer.ExtraProcessor;
+import com.alibaba.fastjson.parser.deserializer.ExtraTypeProvider;
 import com.alibaba.fastjson.parser.deserializer.ParseProcess;
 
 import junit.framework.TestCase;
@@ -46,18 +51,22 @@ public class ParserConfigTest extends TestCase {
 	private ParserConfig config1;
 	private ParseProcess processor;
 	private int featureValues;
+	private Feature features;
 
 	// Constructor
-	public ParserConfigTest(String inputString, ParserConfig config0, ParserConfig config1, ParseProcess processor, int featureValues) {
-		configure(inputString, config0, config1, processor, featureValues);
+	public ParserConfigTest(String inputString, ParserConfig config0, ParserConfig config1, boolean isProcessor, int featureValues, Feature features) {
+		configure(inputString, config0, config1, isProcessor, featureValues, features);
 	}
 	
-	private void configure(String inputString, ParserConfig config0, ParserConfig config1, ParseProcess processor, int featureValues) {
+	private void configure(String inputString, ParserConfig config0, ParserConfig config1, boolean isProcessor, int featureValues, Feature features) {
 		this.inputString = inputString;
 		this.config0 = config0;
 		this.config1 = config1;
-		this.processor = processor;
 		this.featureValues = featureValues;
+		this.features = features;
+		
+		if(isProcessor) this.processor = this.new MyExtraProcessor();
+		else this.processor = null;
 		
 		this.classType = Model.class;
 	}
@@ -65,8 +74,8 @@ public class ParserConfigTest extends TestCase {
 	@Parameterized.Parameters
 	public static Collection<Object[]> getParameters() {
 		return Arrays.asList(new Object[][] {
-			{"{\"value\":123}", new ParserConfig(), new ParserConfig(Thread.currentThread().getContextClassLoader()), null, 0}
-			// inputString			config_0		    	config_1											 processor	feat
+			{"{\"value\":123}", new ParserConfig(), new ParserConfig(Thread.currentThread().getContextClassLoader()), true, 0, Feature.AllowArbitraryCommas}
+			// inputString			config_0		    	config_1											 processor	val		feat
 		});
 	}
 	
@@ -80,12 +89,45 @@ public class ParserConfigTest extends TestCase {
 		JSONObject jo = new JSONObject(this.inputString);
 		int expected = jo.getInt("value");
 		
-		Model model = JSON.parseObject(this.inputString, this.classType, this.config1, this.processor, this.featureValues);
+		Model model = JSON.parseObject(this.inputString, this.classType, this.config1, this.processor, this.featureValues, this.features);
 		Assert.assertEquals(expected, model.value);
 	}
 	
 	public static class Model {
     	public int value;
 	}	
+	
+    public class MyExtraProcessor implements ExtraProcessor, ExtraTypeProvider {    	
+        public void processExtra(Object object, String key, Object value) {
+            VO vo = (VO) object;
+            vo.getAttributes().put(key, value);
+        }
+
+        public Type getExtraType(Object object, String key) {
+            if ("value".equals(key)) {
+                return int.class;
+            }
+            return null;
+        }
+    }
+    
+    public static class VO {
+
+        private int id;
+        private Map<String, Object> attributes = new HashMap<String, Object>();
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public Map<String, Object> getAttributes() {
+            return attributes;
+        }
+
+    }
 	
 }

@@ -8,6 +8,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 
 import junit.framework.TestCase;
 
@@ -70,19 +71,21 @@ public class FieldOrderTest extends TestCase {
 	private String personName;
 	private String schoolName;
 	private int defaultFeatures;
+	private SerializerFeature features;
 	
 	private Person p;
 	private School s;
 	
 	// Constructor
-	public FieldOrderTest(String personName, String schoolName, int defaultFeatures) {
-		configure(personName, schoolName, defaultFeatures);
+	public FieldOrderTest(String personName, String schoolName, int defaultFeatures, SerializerFeature features) {
+		configure(personName, schoolName, defaultFeatures, features);
 	}
 	
-	private void configure(String personName, String schoolName, int defaultFeatures) {
+	private void configure(String personName, String schoolName, int defaultFeatures, SerializerFeature features) {
 		this.personName = personName;
 		this.schoolName = schoolName;
 		this.defaultFeatures = defaultFeatures;
+		this.features = features;
 		
 		this.p = new Person();
 		this.p.setName(this.personName);
@@ -94,15 +97,15 @@ public class FieldOrderTest extends TestCase {
 	@Parameterized.Parameters
 	public static Collection<Object[]> getParameters() {
 		return Arrays.asList(new Object[][] {
-			{"njb", "llyz", 1}
-		// pName	sName	feat
+			{"njb", "llyz", 1, SerializerFeature.IgnoreNonFieldGetter}
+		// pName	sName  def		feat
 		});
 	}
 	
 	@Test
 	public void test_field_order() throws Exception {
 		String expected = "{\"name\":\"" + this.personName + "\",\"school\":{\"name\":\"" + this.schoolName + "\"}}";
-		String json = JSON.toJSONString(this.p, this.defaultFeatures);
+		String json = JSON.toJSONString(this.p, this.defaultFeatures, this.features);
 		assertEquals(expected, json);
 	}
 	
