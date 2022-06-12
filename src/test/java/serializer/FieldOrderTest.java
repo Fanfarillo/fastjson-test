@@ -69,20 +69,20 @@ public class FieldOrderTest extends TestCase {
 	
 	private String personName;
 	private String schoolName;
-	private String expected;
+	private int defaultFeatures;
 	
 	private Person p;
 	private School s;
 	
 	// Constructor
-	public FieldOrderTest(String personName, String schoolName, String expected) {
-		configure(personName, schoolName, expected);
+	public FieldOrderTest(String personName, String schoolName, int defaultFeatures) {
+		configure(personName, schoolName, defaultFeatures);
 	}
 	
-	private void configure(String personName, String schoolName, String expected) {
+	private void configure(String personName, String schoolName, int defaultFeatures) {
 		this.personName = personName;
 		this.schoolName = schoolName;
-		this.expected = expected;
+		this.defaultFeatures = defaultFeatures;
 		
 		this.p = new Person();
 		this.p.setName(this.personName);
@@ -94,15 +94,16 @@ public class FieldOrderTest extends TestCase {
 	@Parameterized.Parameters
 	public static Collection<Object[]> getParameters() {
 		return Arrays.asList(new Object[][] {
-			{"njb", "llyz", "{\"name\":\"njb\",\"school\":{\"name\":\"llyz\"}}"}
-		// pName	sName		expected
+			{"njb", "llyz", 1}
+		// pName	sName	feat
 		});
 	}
 	
 	@Test
 	public void test_field_order() throws Exception {
-		String json = JSON.toJSONString(this.p);
-		assertEquals(this.expected, json);
+		String expected = "{\"name\":\"" + this.personName + "\",\"school\":{\"name\":\"" + this.schoolName + "\"}}";
+		String json = JSON.toJSONString(this.p, this.defaultFeatures);
+		assertEquals(expected, json);
 	}
 	
     public static class Person {
