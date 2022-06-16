@@ -77,15 +77,14 @@ public class FieldOrderTest extends TestCase {
 	private School s;
 	
 	// Constructor
-	public FieldOrderTest(String personName, String schoolName, boolean isFeature) {
-		configure(personName, schoolName, isFeature);
+	public FieldOrderTest(String personName, String schoolName, int defaultFeatures, boolean isFeature) {
+		configure(personName, schoolName, defaultFeatures, isFeature);
 	}
 	
-	private void configure(String personName, String schoolName, boolean isFeature) {
+	private void configure(String personName, String schoolName, int defaultFeatures, boolean isFeature) {
 		this.personName = personName;
-		this.schoolName = schoolName;
-		
-		this.defaultFeatures = 1;
+		this.schoolName = schoolName;		
+		this.defaultFeatures = defaultFeatures;
 		
 		//It actually could be possible to select any subset of features. For simplicity reasons we will consider only two subcases:
 		//SerializerFeature... features with no values && SerializerFeature... features = SerializerFeature.IgnoreNonFieldGetter
@@ -104,14 +103,27 @@ public class FieldOrderTest extends TestCase {
 	@Parameterized.Parameters
 	public static Collection<Object[]> getParameters() {
 		return Arrays.asList(new Object[][] {
-			{"njb", "llyz", true}
-		// pName	sName	feat
+			{"njb", "llyz", -1, true}
+			// pName sName  df  feat
 		});
 	}
 	
 	@Test
 	public void test_field_order() throws Exception {
-		String expected = "{\"name\":\"" + this.personName + "\",\"school\":{\"name\":\"" + this.schoolName + "\"}}";
+		String expected = null;
+		
+		if(this.defaultFeatures >= 0 && this.defaultFeatures % 4 == 0)
+			expected = "{name:\"" + this.personName + "\",school:{name:\"" + this.schoolName + "\"}}";
+		else if(this.defaultFeatures >= 0 && this.defaultFeatures % 4 == 1)
+			expected = "{\"name\":\"" + this.personName + "\",\"school\":{\"name\":\"" + this.schoolName + "\"}}";
+		else if(this.defaultFeatures >= 0 && this.defaultFeatures % 4 == 2)
+			expected = "{name:'" + this.personName + "',school:{name:'" + this.schoolName + "'}}";
+		else if(this.defaultFeatures >= 0 && this.defaultFeatures % 4 == 3)
+			expected = "{'name':'" + this.personName + "','school':{'name':'" + this.schoolName + "'}}";
+		else if(this.defaultFeatures < 0 && (Math.abs(this.defaultFeatures) % 4 == 1 || Math.abs(this.defaultFeatures) % 4 == 2))
+			expected = "[\n\t'" + this.personName + "',\n\t[\n\t\t'" + this.schoolName + "'\n\t]\n]";
+		else
+			expected = "[\n\t\"" + this.personName + "\",\n\t[\n\t\t\"" + this.schoolName + "\"\n\t]\n]";
 		
 		String json;
 		if(this.features != null)

@@ -54,16 +54,16 @@ public class ParserConfigTest extends TestCase {
 	private Feature features;
 
 	// Constructor
-	public ParserConfigTest(String inputString, boolean isProcessor, boolean isFeature) {
-		configure(inputString, isProcessor, isFeature);
+	public ParserConfigTest(String inputString, boolean isProcessor, int featureValues, boolean isFeature) {
+		configure(inputString, isProcessor, featureValues, isFeature);
 	}
 	
-	private void configure(String inputString, boolean isProcessor, boolean isFeature) {
+	private void configure(String inputString, boolean isProcessor, int featureValues, boolean isFeature) {
 		this.inputString = inputString;
+		this.featureValues = featureValues;
 		
 		this.config0 = new ParserConfig();
 		this.config1 = new ParserConfig(Thread.currentThread().getContextClassLoader());
-		this.featureValues = 0;
 		
 		if(isProcessor) this.processor = this.new MyExtraProcessor();
 		else this.processor = null;
@@ -79,8 +79,8 @@ public class ParserConfigTest extends TestCase {
 	@Parameterized.Parameters
 	public static Collection<Object[]> getParameters() {
 		return Arrays.asList(new Object[][] {
-			{"{\"value\":123}", true, true}
-			// inputString	   proc	  feat
+			{"{\"value\":123}", true, 0, true}
+			// inputString	   proc	 val, feat
 		});
 	}
 	
