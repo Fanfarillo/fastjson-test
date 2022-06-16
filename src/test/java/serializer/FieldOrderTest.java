@@ -77,15 +77,22 @@ public class FieldOrderTest extends TestCase {
 	private School s;
 	
 	// Constructor
-	public FieldOrderTest(String personName, String schoolName, int defaultFeatures, SerializerFeature features) {
-		configure(personName, schoolName, defaultFeatures, features);
+	public FieldOrderTest(String personName, String schoolName, boolean isFeature) {
+		configure(personName, schoolName, isFeature);
 	}
 	
-	private void configure(String personName, String schoolName, int defaultFeatures, SerializerFeature features) {
+	private void configure(String personName, String schoolName, boolean isFeature) {
 		this.personName = personName;
 		this.schoolName = schoolName;
-		this.defaultFeatures = defaultFeatures;
-		this.features = features;
+		
+		this.defaultFeatures = 1;
+		
+		//It actually could be possible to select any subset of features. For simplicity reasons we will consider only two subcases:
+		//SerializerFeature... features with no values && SerializerFeature... features = SerializerFeature.IgnoreNonFieldGetter
+		if(isFeature)
+			this.features = SerializerFeature.IgnoreNonFieldGetter;
+		else
+			this.features = null;
 		
 		this.p = new Person();
 		this.p.setName(this.personName);
@@ -97,15 +104,20 @@ public class FieldOrderTest extends TestCase {
 	@Parameterized.Parameters
 	public static Collection<Object[]> getParameters() {
 		return Arrays.asList(new Object[][] {
-			{"njb", "llyz", 1, SerializerFeature.IgnoreNonFieldGetter}
-		// pName	sName  def		feat
+			{"njb", "llyz", true}
+		// pName	sName	feat
 		});
 	}
 	
 	@Test
 	public void test_field_order() throws Exception {
 		String expected = "{\"name\":\"" + this.personName + "\",\"school\":{\"name\":\"" + this.schoolName + "\"}}";
-		String json = JSON.toJSONString(this.p, this.defaultFeatures, this.features);
+		
+		String json;
+		if(this.features != null)
+			json = JSON.toJSONString(this.p, this.defaultFeatures, this.features);
+		else
+			json = JSON.toJSONString(this.p, this.defaultFeatures);
 		assertEquals(expected, json);
 	}
 	

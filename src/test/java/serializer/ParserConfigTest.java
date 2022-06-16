@@ -54,19 +54,24 @@ public class ParserConfigTest extends TestCase {
 	private Feature features;
 
 	// Constructor
-	public ParserConfigTest(String inputString, ParserConfig config0, ParserConfig config1, boolean isProcessor, int featureValues, Feature features) {
-		configure(inputString, config0, config1, isProcessor, featureValues, features);
+	public ParserConfigTest(String inputString, boolean isProcessor, boolean isFeature) {
+		configure(inputString, isProcessor, isFeature);
 	}
 	
-	private void configure(String inputString, ParserConfig config0, ParserConfig config1, boolean isProcessor, int featureValues, Feature features) {
+	private void configure(String inputString, boolean isProcessor, boolean isFeature) {
 		this.inputString = inputString;
-		this.config0 = config0;
-		this.config1 = config1;
-		this.featureValues = featureValues;
-		this.features = features;
+		
+		this.config0 = new ParserConfig();
+		this.config1 = new ParserConfig(Thread.currentThread().getContextClassLoader());
+		this.featureValues = 0;
 		
 		if(isProcessor) this.processor = this.new MyExtraProcessor();
 		else this.processor = null;
+		
+		//It actually could be possible to select any subset of features. For simplicity reasons we will consider only two subcases:
+		//Feature... features with no values && Feature... features = Feature.AllowArbitraryCommas
+		if(isFeature) this.features = Feature.AllowArbitraryCommas;
+		else this.features = null;
 		
 		this.classType = Model.class;
 	}
@@ -74,8 +79,8 @@ public class ParserConfigTest extends TestCase {
 	@Parameterized.Parameters
 	public static Collection<Object[]> getParameters() {
 		return Arrays.asList(new Object[][] {
-			{"{\"value\":123}", new ParserConfig(), new ParserConfig(Thread.currentThread().getContextClassLoader()), true, 0, Feature.AllowArbitraryCommas}
-			// inputString			config_0		    	config_1											 processor	val		feat
+			{"{\"value\":123}", true, true}
+			// inputString	   proc	  feat
 		});
 	}
 	
@@ -89,7 +94,12 @@ public class ParserConfigTest extends TestCase {
 		JSONObject jo = new JSONObject(this.inputString);
 		int expected = jo.getInt("value");
 		
-		Model model = JSON.parseObject(this.inputString, this.classType, this.config1, this.processor, this.featureValues, this.features);
+		Model model;
+		if(this.features != null)
+			model = JSON.parseObject(this.inputString, this.classType, this.config1, this.processor, this.featureValues, this.features);
+		else
+			model = JSON.parseObject(this.inputString, this.classType, this.config1, this.processor, this.featureValues);
+		
 		Assert.assertEquals(expected, model.value);
 	}
 	
